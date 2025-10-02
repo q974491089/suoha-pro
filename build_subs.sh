@@ -6,63 +6,62 @@ linux_install=("apt -y install" "apt -y install" "yum -y install" "yum -y instal
 n=0
 for i in `echo ${linux_os[@]}`
 do
-	if [ $i == $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') ]
-	then
-		break
-	else
-		n=$[$n+1]
-	fi
+    if [ $i == $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') ]
+    then
+        break
+    else
+        n=$[$n+1]
+    fi
 done
 if [ $n == 5 ]
 then
-	echo 当前系统$(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2)没有适配
-	echo 默认使用APT包管理器
-	n=0
+    echo "当前系统$(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2)没有适配"
+    echo "默认使用APT包管理器"
+    n=0
 fi
 if [ -z $(type -P unzip) ]
 then
-	${linux_update[$n]}
-	${linux_install[$n]} unzip
+    ${linux_update[$n]}
+    ${linux_install[$n]} unzip
 fi
 if [ -z $(type -P curl) ]
 then
-	${linux_update[$n]}
-	${linux_install[$n]} curl
+    ${linux_update[$n]}
+    ${linux_install[$n]} curl
 fi
 if [ $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') != "Alpine" ]
 then
-	if [ -z $(type -P systemctl) ]
-	then
-		${linux_update[$n]}
-		${linux_install[$n]} systemctl
-	fi
+    if [ -z $(type -P systemctl) ]
+    then
+        ${linux_update[$n]}
+        ${linux_install[$n]} systemctl
+    fi
 fi
-
 
 function quicktunnel(){
 rm -rf xray cloudflared-linux xray.zip
 case "$(uname -m)" in
-	x86_64 | x64 | amd64 )
-	curl -L https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip -o xray.zip
-	curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared-linux
-	;;
-	i386 | i686 )
-	curl -L https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-32.zip -o xray.zip
-	curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-386 -o cloudflared-linux
-	;;
-	armv8 | arm64 | aarch64 )
-	echo arm64
-	curl -L https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-arm64-v8a.zip -o xray.zip
-	curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64 -o cloudflared-linux
-	;;
-	armv7l )
-	curl -L https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-arm32-v7a.zip -o xray.zip
-	curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm -o cloudflared-linux
-	;;
-	* )
-	echo 当前架构$(uname -m)没有适配
-	exit
-	;;
+    x86_64 | x64 | amd64 )
+    curl -L https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip -o xray.zip
+    curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared-linux
+    ;;
+    i386 | i686 )
+    curl -L https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-32.zip -o xray.zip
+    curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-386 -o cloudflared-linux
+    ;;
+    armv8 | arm64 | aarch64 )
+    echo arm64
+    curl -L https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-arm64-v8a.zip -o xray.zip
+    curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64 -o cloudflared-linux
+    ;;
+    armv7l )
+    curl -L https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-arm32-v7a.zip -o xray.zip
+    curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm -o cloudflared-linux
+    ;;
+    * )
+    echo "当前架构$(uname -m)没有适配"
+    exit
+    ;;
 esac
 mkdir xray
 unzip -d xray xray.zip
@@ -75,33 +74,33 @@ if [ $protocol == 1 ]
 then
 cat>xray/config.json<<EOF
 {
-	"inbounds": [
-		{
-			"port": $port,
-			"listen": "localhost",
-			"protocol": "vmess",
-			"settings": {
-				"clients": [
-					{
-						"id": "$uuid",
-						"alterId": 0
-					}
-				]
-			},
-			"streamSettings": {
-				"network": "ws",
-				"wsSettings": {
-					"path": "$urlpath"
-				}
-			}
-		}
-	],
-	"outbounds": [
-		{
-			"protocol": "freedom",
-			"settings": {}
-		}
-	]
+    "inbounds": [
+        {
+            "port": $port,
+            "listen": "localhost",
+            "protocol": "vmess",
+            "settings": {
+                "clients": [
+                    {
+                        "id": "$uuid",
+                        "alterId": 0
+                    }
+                ]
+            },
+            "streamSettings": {
+                "network": "ws",
+                "wsSettings": {
+                    "path": "$urlpath"
+                }
+            }
+        }
+    ],
+    "outbounds": [
+        {
+            "protocol": "freedom",
+            "settings": {}
+        }
+    ]
 }
 EOF
 fi
@@ -109,33 +108,33 @@ if [ $protocol == 2 ]
 then
 cat>xray/config.json<<EOF
 {
-	"inbounds": [
-		{
-			"port": $port,
-			"listen": "localhost",
-			"protocol": "vless",
-			"settings": {
-				"decryption": "none",
-				"clients": [
-					{
-						"id": "$uuid"
-					}
-				]
-			},
-			"streamSettings": {
-				"network": "ws",
-				"wsSettings": {
-					"path": "$urlpath"
-				}
-			}
-		}
-	],
-	"outbounds": [
-		{
-			"protocol": "freedom",
-			"settings": {}
-		}
-	]
+    "inbounds": [
+        {
+            "port": $port,
+            "listen": "localhost",
+            "protocol": "vless",
+            "settings": {
+                "decryption": "none",
+                "clients": [
+                    {
+                        "id": "$uuid"
+                    }
+                ]
+            },
+            "streamSettings": {
+                "network": "ws",
+                "wsSettings": {
+                    "path": "$urlpath"
+                }
+            }
+        }
+    ],
+    "outbounds": [
+        {
+            "protocol": "freedom",
+            "settings": {}
+        }
+    ]
 }
 EOF
 fi
@@ -151,24 +150,24 @@ echo 等待cloudflare argo生成地址 已等待 $n 秒
 argo=$(cat argo.log | grep trycloudflare.com | awk 'NR==2{print}' | awk -F// '{print $2}' | awk '{print $1}')
 if [ $n == 15 ]
 then
-	n=0
-	if [ $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') == "Alpine" ]
-	then
-		kill -9 $(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print $1}') >/dev/null 2>&1
-	else
-		kill -9 $(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print $2}') >/dev/null 2>&1
-	fi
-	rm -rf argo.log
-	clear
-	echo argo获取超时,重试中
-	./cloudflared-linux tunnel --url http://localhost:$port --no-autoupdate --edge-ip-version $ips --protocol http2 >argo.log 2>&1 &
-	sleep 1
+    n=0
+    if [ $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') == "Alpine" ]
+    then
+        kill -9 $(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print $1}') >/dev/null 2>&1
+    else
+        kill -9 $(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print $2}') >/dev/null 2>&1
+    fi
+    rm -rf argo.log
+    clear
+    echo argo获取超时,重试中
+    ./cloudflared-linux tunnel --url http://localhost:$port --no-autoupdate --edge-ip-version $ips --protocol http2 >argo.log 2>&1 &
+    sleep 1
 elif [ -z "$argo" ]
 then
-	sleep 1
+    sleep 1
 else
-	rm -rf argo.log
-	break
+    rm -rf argo.log
+    break
 fi
 done
 clear
@@ -210,24 +209,24 @@ done
 
 if [ $protocol == 1 ]
 then
-	echo -e vmess链接已经生成, cloudflare.182682.xyz 可替换为CF优选IP'\n' > v2ray.txt
-	if [ $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') == "Alpine" ]
-	then
-		echo 'vmess://'$(echo '{"add":"cloudflare.182682.xyz","aid":"0","host":"'$argo'","id":"'$uuid'","net":"ws","path":"'$urlpath'","port":"443","ps":"'$(echo $isp | sed -e 's/_/ /g')'_tls","tls":"tls","type":"none","v":"2"}' | base64 | awk '{ORS=(NR%76==0?RS:"");}1') >> v2ray.txt
-	else
-		echo 'vmess://'$(echo '{"add":"cloudflare.182682.xyz","aid":"0","host":"'$argo'","id":"'$uuid'","net":"ws","path":"'$urlpath'","port":"443","ps":"'$(echo $isp | sed -e 's/_/ /g')'_tls","tls":"tls","type":"none","v":"2"}' | base64 -w 0) >> v2ray.txt
-	fi
-	echo -e '\n'端口 443 可改为 2053 2083 2087 2096 8443'\n' >> v2ray.txt
-	if [ $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') == "Alpine" ]
-	then
-		echo 'vmess://'$(echo '{"add":"cloudflare.182682.xyz","aid":"0","host":"'$argo'","id":"'$uuid'","net":"ws","path":"'$urlpath'","port":"80","ps":"'$(echo $isp | sed -e 's/_/ /g')'","tls":"","type":"none","v":"2"}' | base64 | awk '{ORS=(NR%76==0?RS:"");}1') >> v2ray.txt
-	else
-		echo 'vmess://'$(echo '{"add":"cloudflare.182682.xyz","aid":"0","host":"'$argo'","id":"'$uuid'","net":"ws","path":"'$urlpath'","port":"80","ps":"'$(echo $isp | sed -e 's/_/ /g')'","tls":"","type":"none","v":"2"}' | base64 -w 0) >> v2ray.txt
-	fi
-	echo -e '\n'端口 80 可改为 8080 8880 2052 2082 2086 2095 >> v2ray.txt
+    echo -e "vmess链接已经生成, cloudflare.182682.xyz 可替换为CF优选IP\n" > v2ray.txt
+    if [ $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') == "Alpine" ]
+    then
+        echo 'vmess://'$(echo '{"add":"cloudflare.182682.xyz","aid":"0","host":"'$argo'","id":"'$uuid'","net":"ws","path":"'$urlpath'","port":"443","ps":"'$(echo $isp | sed -e 's/_/ /g')'_tls","tls":"tls","type":"none","v":"2"}' | base64 | awk '{ORS=(NR%76==0?RS:"");}1') >> v2ray.txt
+    else
+        echo 'vmess://'$(echo '{"add":"cloudflare.182682.xyz","aid":"0","host":"'$argo'","id":"'$uuid'","net":"ws","path":"'$urlpath'","port":"443","ps":"'$(echo $isp | sed -e 's/_/ /g')'_tls","tls":"tls","type":"none","v":"2"}' | base64 -w 0) >> v2ray.txt
+    fi
+    echo -e "\n端口 443 可改为 2053 2083 2087 2096 8443\n" >> v2ray.txt
+    if [ $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') == "Alpine" ]
+    then
+        echo 'vmess://'$(echo '{"add":"cloudflare.182682.xyz","aid":"0","host":"'$argo'","id":"'$uuid'","net":"ws","path":"'$urlpath'","port":"80","ps":"'$(echo $isp | sed -e 's/_/ /g')'","tls":"","type":"none","v":"2"}' | base64 | awk '{ORS=(NR%76==0?RS:"");}1') >> v2ray.txt
+    else
+        echo 'vmess://'$(echo '{"add":"cloudflare.182682.xyz","aid":"0","host":"'$argo'","id":"'$uuid'","net":"ws","path":"'$urlpath'","port":"80","ps":"'$(echo $isp | sed -e 's/_/ /g')'","tls":"","type":"none","v":"2"}' | base64 -w 0) >> v2ray.txt
+    fi
+    echo -e "\n端口 80 可改为 8080 8880 2052 2082 2086 2095\n" >> v2ray.txt
 
-    # 新增：生成基于本地 ips.txt 的优选链接
-    echo -e '\n'以下是基于本地优选IP (ips.txt) 生成的链接：'\n' >> v2ray.txt
+    # 修复：生成基于本地 ips.txt 的优选链接
+    echo -e "\n以下是基于本地优选IP (ips.txt) 生成的链接：\n" >> v2ray.txt
     for entry in "${local_ips[@]}"; do
         ip=$(echo $entry | cut -d':' -f1)
         custom_port=$(echo $entry | cut -d':' -f2)
@@ -252,7 +251,7 @@ then
     done
 
     # 新增：生成基于 web 优选 IP 的链接（TLS 和 非 TLS）
-    echo -e '\n'以下是基于web优选IP 生成的链接（443 TLS 和 80 非TLS）：'\n' >> v2ray.txt
+    echo -e "\n以下是基于web优选IP 生成的链接（443 TLS 和 80 非TLS）：\n" >> v2ray.txt
     for entry in "${web_ips[@]}"; do
         ip=$(echo $entry | cut -d':' -f1)
         line_name=$(echo $entry | cut -d':' -f2-)
@@ -271,18 +270,17 @@ then
             echo 'vmess://'$(echo '{"add":"'$ip'","aid":"0","host":"'$argo'","id":"'$uuid'","net":"ws","path":"'$urlpath'","port":"80","ps":"'$(echo $isp | sed -e 's/_/ /g')'_'$line_name'","tls":"","type":"none","v":"2"}' | base64 -w 0) >> v2ray.txt
         fi
     done
-
 fi
 if [ $protocol == 2 ]
 then
-	echo -e vless链接已经生成, cloudflare.182682.xyz 可替换为CF优选IP'\n' > v2ray.txt
-	echo 'vless://'$uuid'@cloudflare.182682.xyz:443?encryption=none&security=tls&type=ws&host='$argo'&path='$urlpath'#'$(echo $isp | sed -e 's/_/%20/g' -e 's/,/%2C/g')'_tls' >> v2ray.txt
-	echo -e '\n'端口 443 可改为 2053 2083 2087 2096 8443'\n' >> v2ray.txt
-	echo 'vless://'$uuid'@cloudflare.182682.xyz:80?encryption=none&security=none&type=ws&host='$argo'&path='$urlpath'#'$(echo $isp | sed -e 's/_/%20/g' -e 's/,/%2C/g')'' >> v2ray.txt
-	echo -e '\n'端口 80 可改为 8080 8880 2052 2082 2086 2095 >> v2ray.txt
+    echo -e "vless链接已经生成, cloudflare.182682.xyz 可替换为CF优选IP\n" > v2ray.txt
+    echo 'vless://'$uuid'@cloudflare.182682.xyz:443?encryption=none&security=tls&type=ws&host='$argo'&path='$urlpath'#'$(echo $isp | sed -e 's/_/%20/g' -e 's/,/%2C/g')'_tls' >> v2ray.txt
+    echo -e "\n端口 443 可改为 2053 2083 2087 2096 8443\n" >> v2ray.txt
+    echo 'vless://'$uuid'@cloudflare.182682.xyz:80?encryption=none&security=none&type=ws&host='$argo'&path='$urlpath'#'$(echo $isp | sed -e 's/_/%20/g' -e 's/,/%2C/g')'' >> v2ray.txt
+    echo -e "\n端口 80 可改为 8080 8880 2052 2082 2086 2095\n" >> v2ray.txt
 
     # 新增：生成基于本地 ips.txt 的优选链接
-    echo -e '\n'以下是基于本地优选IP (ips.txt) 生成的链接：'\n' >> v2ray.txt
+    echo -e "\n以下是基于本地优选IP (ips.txt) 生成的链接：\n" >> v2ray.txt
     for entry in "${local_ips[@]}"; do
         ip=$(echo $entry | cut -d':' -f1)
         custom_port=$(echo $entry | cut -d':' -f2)
@@ -302,7 +300,7 @@ then
     done
 
     # 新增：生成基于 web 优选 IP 的链接（TLS 和 非 TLS）
-    echo -e '\n'以下是基于web优选IP 生成的链接（443 TLS 和 80 非TLS）：'\n' >> v2ray.txt
+    echo -e "\n以下是基于web优选IP 生成的链接（443 TLS 和 80 非TLS）：\n" >> v2ray.txt
     for entry in "${web_ips[@]}"; do
         ip=$(echo $entry | cut -d':' -f1)
         line_name=$(echo $entry | cut -d':' -f2-)
@@ -312,12 +310,11 @@ then
         # 非 TLS 版本 (port=80)
         echo 'vless://'$uuid'@'$ip':80?encryption=none&security=none&type=ws&host='$argo'&path='$urlpath'#'$(echo $isp | sed -e 's/_/%20/g' -e 's/,/%2C/g')'_'$line_name >> v2ray.txt
     done
-
 fi
 rm -rf argo.log
 cat v2ray.txt
-echo -e '\n'信息已经保存在 /root/v2ray.txt,再次查看请运行 cat /root/v2ray.txt
-echo -e 注意：梭哈模式重启服务器后失效！！！
+echo -e "\n信息已经保存在 /root/v2ray.txt,再次查看请运行 cat /root/v2ray.txt"
+echo -e "注意：梭哈模式重启服务器后失效！！！"
 }
 
 function installtunnel(){
@@ -325,27 +322,27 @@ function installtunnel(){
 mkdir -p /opt/suoha/ >/dev/null 2>&1
 rm -rf xray cloudflared-linux xray.zip
 case "$(uname -m)" in
-	x86_64 | x64 | amd64 )
-	curl -L https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip -o xray.zip
-	curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared-linux
-	;;
-	i386 | i686 )
-	curl -L https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-32.zip -o xray.zip
-	curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-386 -o cloudflared-linux
-	;;
-	armv8 | arm64 | aarch64 )
-	echo arm64
-	curl -L https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-arm64-v8a.zip -o xray.zip
-	curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64 -o cloudflared-linux
-	;;
-	armv71 )
-	curl -L https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-arm32-v7a.zip -o xray.zip
-	curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm -o cloudflared-linux
-	;;
-	* )
-	echo 当前架构$(uname -m)没有适配
-	exit
-	;;
+    x86_64 | x64 | amd64 )
+    curl -L https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip -o xray.zip
+    curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared-linux
+    ;;
+    i386 | i686 )
+    curl -L https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-32.zip -o xray.zip
+    curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-386 -o cloudflared-linux
+    ;;
+    armv8 | arm64 | aarch64 )
+    echo arm64
+    curl -L https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-arm64-v8a.zip -o xray.zip
+    curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64 -o cloudflared-linux
+    ;;
+    armv7l )
+    curl -L https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-arm32-v7a.zip -o xray.zip
+    curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm -o cloudflared-linux
+    ;;
+    * )
+    echo "当前架构$(uname -m)没有适配"
+    exit
+    ;;
 esac
 mkdir xray
 unzip -d xray xray.zip
@@ -360,33 +357,33 @@ if [ $protocol == 1 ]
 then
 cat>/opt/suoha/config.json<<EOF
 {
-	"inbounds": [
-		{
-			"port": $port,
-			"listen": "localhost",
-			"protocol": "vmess",
-			"settings": {
-				"clients": [
-					{
-						"id": "$uuid",
-						"alterId": 0
-					}
-				]
-			},
-			"streamSettings": {
-				"network": "ws",
-				"wsSettings": {
-					"path": "$urlpath"
-				}
-			}
-		}
-	],
-	"outbounds": [
-		{
-			"protocol": "freedom",
-			"settings": {}
-		}
-	]
+    "inbounds": [
+        {
+            "port": $port,
+            "listen": "localhost",
+            "protocol": "vmess",
+            "settings": {
+                "clients": [
+                    {
+                        "id": "$uuid",
+                        "alterId": 0
+                    }
+                ]
+            },
+            "streamSettings": {
+                "network": "ws",
+                "wsSettings": {
+                    "path": "$urlpath"
+                }
+            }
+        }
+    ],
+    "outbounds": [
+        {
+            "protocol": "freedom",
+            "settings": {}
+        }
+    ]
 }
 EOF
 fi
@@ -394,33 +391,33 @@ if [ $protocol == 2 ]
 then
 cat>/opt/suoha/config.json<<EOF
 {
-	"inbounds": [
-		{
-			"port": $port,
-			"listen": "localhost",
-			"protocol": "vless",
-			"settings": {
-				"decryption": "none",
-				"clients": [
-					{
-						"id": "$uuid"
-					}
-				]
-			},
-			"streamSettings": {
-				"network": "ws",
-				"wsSettings": {
-					"path": "$urlpath"
-				}
-			}
-		}
-	],
-	"outbounds": [
-		{
-			"protocol": "freedom",
-			"settings": {}
-		}
-	]
+    "inbounds": [
+        {
+            "port": $port,
+            "listen": "localhost",
+            "protocol": "vless",
+            "settings": {
+                "decryption": "none",
+                "clients": [
+                    {
+                        "id": "$uuid"
+                    }
+                ]
+            },
+            "streamSettings": {
+                "network": "ws",
+                "wsSettings": {
+                    "path": "$urlpath"
+                }
+            }
+        }
+    ],
+    "outbounds": [
+        {
+            "protocol": "freedom",
+            "settings": {}
+        }
+    ]
 }
 EOF
 fi
@@ -460,27 +457,26 @@ echo "$web_content" | grep '^| ' | tail -n +3 | while IFS='|' read -r _ line_nam
     fi
 done
 
-# 生成 v2ray.txt (类似 quicktunnel)
 if [ $protocol == 1 ]
 then
-	echo -e vmess链接已经生成, cloudflare.182682.xyz 可替换为CF优选IP'\n' > /opt/suoha/v2ray.txt
-	if [ $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') == "Alpine" ]
-	then
-		echo 'vmess://'$(echo '{"add":"cloudflare.182682.xyz","aid":"0","host":"'$argo'","id":"'$uuid'","net":"ws","path":"'$urlpath'","port":"443","ps":"'$(echo $isp | sed -e 's/_/ /g')'_tls","tls":"tls","type":"none","v":"2"}' | base64 | awk '{ORS=(NR%76==0?RS:"");}1') >> /opt/suoha/v2ray.txt
-	else
-		echo 'vmess://'$(echo '{"add":"cloudflare.182682.xyz","aid":"0","host":"'$argo'","id":"'$uuid'","net":"ws","path":"'$urlpath'","port":"443","ps":"'$(echo $isp | sed -e 's/_/ /g')'_tls","tls":"tls","type":"none","v":"2"}' | base64 -w 0) >> /opt/suoha/v2ray.txt
-	fi
-	echo -e '\n'端口 443 可改为 2053 2083 2087 2096 8443'\n' >> /opt/suoha/v2ray.txt
-	if [ $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') == "Alpine" ]
-	then
-		echo 'vmess://'$(echo '{"add":"cloudflare.182682.xyz","aid":"0","host":"'$argo'","id":"'$uuid'","net":"ws","path":"'$urlpath'","port":"80","ps":"'$(echo $isp | sed -e 's/_/ /g')'","tls":"","type":"none","v":"2"}' | base64 | awk '{ORS=(NR%76==0?RS:"");}1') >> /opt/suoha/v2ray.txt
-	else
-		echo 'vmess://'$(echo '{"add":"cloudflare.182682.xyz","aid":"0","host":"'$argo'","id":"'$uuid'","net":"ws","path":"'$urlpath'","port":"80","ps":"'$(echo $isp | sed -e 's/_/ /g')'","tls":"","type":"none","v":"2"}' | base64 -w 0) >> /opt/suoha/v2ray.txt
-	fi
-	echo -e '\n'端口 80 可改为 8080 8880 2052 2082 2086 2095 >> /opt/suoha/v2ray.txt
+    echo -e "vmess链接已经生成, cloudflare.182682.xyz 可替换为CF优选IP\n" > /opt/suoha/v2ray.txt
+    if [ $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') == "Alpine" ]
+    then
+        echo 'vmess://'$(echo '{"add":"cloudflare.182682.xyz","aid":"0","host":"'$argo'","id":"'$uuid'","net":"ws","path":"'$urlpath'","port":"443","ps":"'$(echo $isp | sed -e 's/_/ /g')'_tls","tls":"tls","type":"none","v":"2"}' | base64 | awk '{ORS=(NR%76==0?RS:"");}1') >> /opt/suoha/v2ray.txt
+    else
+        echo 'vmess://'$(echo '{"add":"cloudflare.182682.xyz","aid":"0","host":"'$argo'","id":"'$uuid'","net":"ws","path":"'$urlpath'","port":"443","ps":"'$(echo $isp | sed -e 's/_/ /g')'_tls","tls":"tls","type":"none","v":"2"}' | base64 -w 0) >> /opt/suoha/v2ray.txt
+    fi
+    echo -e "\n端口 443 可改为 2053 2083 2087 2096 8443\n" >> /opt/suoha/v2ray.txt
+    if [ $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') == "Alpine" ]
+    then
+        echo 'vmess://'$(echo '{"add":"cloudflare.182682.xyz","aid":"0","host":"'$argo'","id":"'$uuid'","net":"ws","path":"'$urlpath'","port":"80","ps":"'$(echo $isp | sed -e 's/_/ /g')'","tls":"","type":"none","v":"2"}' | base64 | awk '{ORS=(NR%76==0?RS:"");}1') >> /opt/suoha/v2ray.txt
+    else
+        echo 'vmess://'$(echo '{"add":"cloudflare.182682.xyz","aid":"0","host":"'$argo'","id":"'$uuid'","net":"ws","path":"'$urlpath'","port":"80","ps":"'$(echo $isp | sed -e 's/_/ /g')'","tls":"","type":"none","v":"2"}' | base64 -w 0) >> /opt/suoha/v2ray.txt
+    fi
+    echo -e "\n端口 80 可改为 8080 8880 2052 2082 2086 2095\n" >> /opt/suoha/v2ray.txt
 
-    # 新增：生成基于本地 ips.txt 的优选链接
-    echo -e '\n'以下是基于本地优选IP (ips.txt) 生成的链接：'\n' >> /opt/suoha/v2ray.txt
+    # 修复：生成基于本地 ips.txt 的优选链接
+    echo -e "\n以下是基于本地优选IP (ips.txt) 生成的链接：\n" >> /opt/suoha/v2ray.txt
     for entry in "${local_ips[@]}"; do
         ip=$(echo $entry | cut -d':' -f1)
         custom_port=$(echo $entry | cut -d':' -f2)
@@ -505,7 +501,7 @@ then
     done
 
     # 新增：生成基于 web 优选 IP 的链接（TLS 和 非 TLS）
-    echo -e '\n'以下是基于web优选IP 生成的链接（443 TLS 和 80 非TLS）：'\n' >> /opt/suoha/v2ray.txt
+    echo -e "\n以下是基于web优选IP 生成的链接（443 TLS 和 80 非TLS）：\n" >> /opt/suoha/v2ray.txt
     for entry in "${web_ips[@]}"; do
         ip=$(echo $entry | cut -d':' -f1)
         line_name=$(echo $entry | cut -d':' -f2-)
@@ -524,18 +520,17 @@ then
             echo 'vmess://'$(echo '{"add":"'$ip'","aid":"0","host":"'$argo'","id":"'$uuid'","net":"ws","path":"'$urlpath'","port":"80","ps":"'$(echo $isp | sed -e 's/_/ /g')'_'$line_name'","tls":"","type":"none","v":"2"}' | base64 -w 0) >> /opt/suoha/v2ray.txt
         fi
     done
-
 fi
 if [ $protocol == 2 ]
 then
-	echo -e vless链接已经生成, cloudflare.182682.xyz 可替换为CF优选IP'\n' > /opt/suoha/v2ray.txt
-	echo 'vless://'$uuid'@cloudflare.182682.xyz:443?encryption=none&security=tls&type=ws&host='$argo'&path='$urlpath'#'$(echo $isp | sed -e 's/_/%20/g' -e 's/,/%2C/g')'_tls' >> /opt/suoha/v2ray.txt
-	echo -e '\n'端口 443 可改为 2053 2083 2087 2096 8443'\n' >> /opt/suoha/v2ray.txt
-	echo 'vless://'$uuid'@cloudflare.182682.xyz:80?encryption=none&security=none&type=ws&host='$argo'&path='$urlpath'#'$(echo $isp | sed -e 's/_/%20/g' -e 's/,/%2C/g')'' >> /opt/suoha/v2ray.txt
-	echo -e '\n'端口 80 可改为 8080 8880 2052 2082 2086 2095 >> /opt/suoha/v2ray.txt
+    echo -e "vless链接已经生成, cloudflare.182682.xyz 可替换为CF优选IP\n" > /opt/suoha/v2ray.txt
+    echo 'vless://'$uuid'@cloudflare.182682.xyz:443?encryption=none&security=tls&type=ws&host='$argo'&path='$urlpath'#'$(echo $isp | sed -e 's/_/%20/g' -e 's/,/%2C/g')'_tls' >> /opt/suoha/v2ray.txt
+    echo -e "\n端口 443 可改为 2053 2083 2087 2096 8443\n" >> /opt/suoha/v2ray.txt
+    echo 'vless://'$uuid'@cloudflare.182682.xyz:80?encryption=none&security=none&type=ws&host='$argo'&path='$urlpath'#'$(echo $isp | sed -e 's/_/%20/g' -e 's/,/%2C/g')'' >> /opt/suoha/v2ray.txt
+    echo -e "\n端口 80 可改为 8080 8880 2052 2082 2086 2095\n" >> /opt/suoha/v2ray.txt
 
     # 新增：生成基于本地 ips.txt 的优选链接
-    echo -e '\n'以下是基于本地优选IP (ips.txt) 生成的链接：'\n' >> /opt/suoha/v2ray.txt
+    echo -e "\n以下是基于本地优选IP (ips.txt) 生成的链接：\n" >> /opt/suoha/v2ray.txt
     for entry in "${local_ips[@]}"; do
         ip=$(echo $entry | cut -d':' -f1)
         custom_port=$(echo $entry | cut -d':' -f2)
@@ -555,7 +550,7 @@ then
     done
 
     # 新增：生成基于 web 优选 IP 的链接（TLS 和 非 TLS）
-    echo -e '\n'以下是基于web优选IP 生成的链接（443 TLS 和 80 非TLS）：'\n' >> /opt/suoha/v2ray.txt
+    echo -e "\n以下是基于web优选IP 生成的链接（443 TLS 和 80 非TLS）：\n" >> /opt/suoha/v2ray.txt
     for entry in "${web_ips[@]}"; do
         ip=$(echo $entry | cut -d':' -f1)
         line_name=$(echo $entry | cut -d':' -f2-)
@@ -565,7 +560,6 @@ then
         # 非 TLS 版本 (port=80)
         echo 'vless://'$uuid'@'$ip':80?encryption=none&security=none&type=ws&host='$argo'&path='$urlpath'#'$(echo $isp | sed -e 's/_/%20/g' -e 's/,/%2C/g')'_'$line_name >> /opt/suoha/v2ray.txt
     done
-
 fi
 
 # 以下是原 installtunnel 的剩余代码（未修改）
@@ -601,71 +595,71 @@ echo 0.退出
 read -p "请选择菜单(默认0): " menu
 if [ -z "\$menu" ]
 then
-	menu=0
+    menu=0
 fi
 if [ \$menu == 1 ]
 then
-	clear
-	while true
-	do
-		echo ARGO TUNNEL当前已经绑定的服务如下
-		/opt/suoha/cloudflared-linux tunnel list
-		echo 1.删除TUNNEL
-		echo 0.退出
-		read -p "请选择菜单(默认0): " tunneladmin
-		if [ -z "\$tunneladmin" ]
-		then
-			tunneladmin=0
-		fi
-		if [ \$tunneladmin == 1 ]
-		then
-			read -p "请输入要删除的TUNNEL NAME: " tunnelname
-			echo 断开TUNNEL \$tunnelname
-			/opt/suoha/cloudflared-linux tunnel cleanup \$tunnelname
-			echo 删除TUNNEL \$tunnelname
-			/opt/suoha/cloudflared-linux tunnel delete \$tunnelname
-		else
-			break
-		fi
-	done
+    clear
+    while true
+    do
+        echo ARGO TUNNEL当前已经绑定的服务如下
+        /opt/suoha/cloudflared-linux tunnel list
+        echo 1.删除TUNNEL
+        echo 0.退出
+        read -p "请选择菜单(默认0): " tunneladmin
+        if [ -z "\$tunneladmin" ]
+        then
+            tunneladmin=0
+        fi
+        if [ \$tunneladmin == 1 ]
+        then
+            read -p "请输入要删除的TUNNEL NAME: " tunnelname
+            echo 断开TUNNEL \$tunnelname
+            /opt/suoha/cloudflared-linux tunnel cleanup \$tunnelname
+            echo 删除TUNNEL \$tunnelname
+            /opt/suoha/cloudflared-linux tunnel delete \$tunnelname
+        else
+            break
+        fi
+    done
 elif [ \$menu == 2 ]
 then
-	/etc/local.d/cloudflared.start >/dev/null 2>&1
-	/etc/local.d/xray.start >/dev/null 2>&1
-	clear
-	sleep 2
+    /etc/local.d/cloudflared.start >/dev/null 2>&1
+    /etc/local.d/xray.start >/dev/null 2>&1
+    clear
+    sleep 2
 elif [ \$menu == 3 ]
 then
-	kill -9 \$(ps -ef | grep xray | grep -v grep | awk '{print \$1}') >/dev/null 2>&1
-	kill -9 \$(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print \$1}') >/dev/null 2>&1
-	clear
-	sleep 1
+    kill -9 \$(ps -ef | grep xray | grep -v grep | awk '{print \$1}') >/dev/null 2>&1
+    kill -9 \$(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print \$1}') >/dev/null 2>&1
+    clear
+    sleep 1
 elif [ \$menu == 4 ]
 then
-	kill -9 \$(ps -ef | grep xray | grep -v grep | awk '{print \$1}') >/dev/null 2>&1
-	kill -9 \$(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print \$1}') >/dev/null 2>&1
-	/etc/local.d/cloudflared.start >/dev/null 2>&1
-	/etc/local.d/xray.start >/dev/null 2>&1
-	clear
-	sleep 1
+    kill -9 \$(ps -ef | grep xray | grep -v grep | awk '{print \$1}') >/dev/null 2>&1
+    kill -9 \$(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print \$1}') >/dev/null 2>&1
+    /etc/local.d/cloudflared.start >/dev/null 2>&1
+    /etc/local.d/xray.start >/dev/null 2>&1
+    clear
+    sleep 1
 elif [ \$menu == 5 ]
 then
-	kill -9 \$(ps -ef | grep xray | grep -v grep | awk '{print \$1}') >/dev/null 2>&1
-	kill -9 \$(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print \$1}') >/dev/null 2>&1
-	rm -rf /opt/suoha /etc/local.d/cloudflared.start /etc/local.d/xray.start /usr/bin/suoha ~/.cloudflared
-	echo 所有服务都卸载完成
-	echo 彻底删除授权记录
-	echo 请访问 https://dash.cloudflare.com/profile/api-tokens
-	echo 删除授权的 Argo Tunnel API Token 即可
-	exit
+    kill -9 \$(ps -ef | grep xray | grep -v grep | awk '{print \$1}') >/dev/null 2>&1
+    kill -9 \$(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print \$1}') >/dev/null 2>&1
+    rm -rf /opt/suoha /etc/local.d/cloudflared.start /etc/local.d/xray.start /usr/bin/suoha ~/.cloudflared
+    echo 所有服务都卸载完成
+    echo 彻底删除授权记录
+    echo 请访问 https://dash.cloudflare.com/profile/api-tokens
+    echo 删除授权的 Argo Tunnel API Token 即可
+    exit
 elif [ \$menu == 6 ]
 then
-	clear
-	cat /opt/suoha/v2ray.txt
+    clear
+    cat /opt/suoha/v2ray.txt
 elif [ \$menu == 0 ]
 then
-	echo 退出成功
-	exit
+    echo 退出成功
+    exit
 fi
 done
 EOF
@@ -688,71 +682,71 @@ echo 0.退出
 read -p "请选择菜单(默认0): " menu
 if [ -z "\$menu" ]
 then
-	menu=0
+    menu=0
 fi
 if [ \$menu == 1 ]
 then
-	clear
-	while true
-	do
-		echo ARGO TUNNEL当前已经绑定的服务如下
-		/opt/suoha/cloudflared-linux tunnel list
-		echo 1.删除TUNNEL
-		echo 0.退出
-		read -p "请选择菜单(默认0): " tunneladmin
-		if [ -z "\$tunneladmin" ]
-		then
-			tunneladmin=0
-		fi
-		if [ \$tunneladmin == 1 ]
-		then
-			read -p "请输入要删除的TUNNEL NAME: " tunnelname
-			echo 断开TUNNEL \$tunnelname
-			/opt/suoha/cloudflared-linux tunnel cleanup \$tunnelname
-			echo 删除TUNNEL \$tunnelname
-			/opt/suoha/cloudflared-linux tunnel delete \$tunnelname
-		else
-			break
-		fi
-	done
+    clear
+    while true
+    do
+        echo ARGO TUNNEL当前已经绑定的服务如下
+        /opt/suoha/cloudflared-linux tunnel list
+        echo 1.删除TUNNEL
+        echo 0.退出
+        read -p "请选择菜单(默认0): " tunneladmin
+        if [ -z "\$tunneladmin" ]
+        then
+            tunneladmin=0
+        fi
+        if [ \$tunneladmin == 1 ]
+        then
+            read -p "请输入要删除的TUNNEL NAME: " tunnelname
+            echo 断开TUNNEL \$tunnelname
+            /opt/suoha/cloudflared-linux tunnel cleanup \$tunnelname
+            echo 删除TUNNEL \$tunnelname
+            /opt/suoha/cloudflared-linux tunnel delete \$tunnelname
+        else
+            break
+        fi
+    done
 elif [ \$menu == 2 ]
 then
-	systemctl start cloudflared.service
-	systemctl start xray.service
-	clear
+    systemctl start cloudflared.service
+    systemctl start xray.service
+    clear
 elif [ \$menu == 3 ]
 then
-	systemctl stop cloudflared.service
-	systemctl stop xray.service
-	clear
+    systemctl stop cloudflared.service
+    systemctl stop xray.service
+    clear
 elif [ \$menu == 4 ]
 then
-	systemctl restart cloudflared.service
-	systemctl restart xray.service
-	clear
+    systemctl restart cloudflared.service
+    systemctl restart xray.service
+    clear
 elif [ \$menu == 5 ]
 then
-	systemctl stop cloudflared.service
-	systemctl stop xray.service
-	systemctl disable cloudflared.service
-	systemctl disable xray.service
-	kill -9 \$(ps -ef | grep xray | grep -v grep | awk '{print \$2}') >/dev/null 2>&1
-	kill -9 \$(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print \$2}') >/dev/null 2>&1
-	rm -rf /opt/suoha /lib/systemd/system/cloudflared.service /lib/systemd/system/xray.service /usr/bin/suoha ~/.cloudflared
-	systemctl --system daemon-reload
-	echo 所有服务都卸载完成
-	echo 彻底删除授权记录
-	echo 请访问 https://dash.cloudflare.com/profile/api-tokens
-	echo 删除授权的 Argo Tunnel API Token 即可
-	exit
+    systemctl stop cloudflared.service
+    systemctl stop xray.service
+    systemctl disable cloudflared.service
+    systemctl disable xray.service
+    kill -9 \$(ps -ef | grep xray | grep -v grep | awk '{print \$2}') >/dev/null 2>&1
+    kill -9 \$(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print \$2}') >/dev/null 2>&1
+    rm -rf /opt/suoha /lib/systemd/system/cloudflared.service /lib/systemd/system/xray.service /usr/bin/suoha ~/.cloudflared
+    systemctl --system daemon-reload
+    echo 所有服务都卸载完成
+    echo 彻底删除授权记录
+    echo 请访问 https://dash.cloudflare.com/profile/api-tokens
+    echo 删除授权的 Argo Tunnel API Token 即可
+    exit
 elif [ \$menu == 6 ]
 then
-	clear
-	cat /opt/suoha/v2ray.txt
+    clear
+    cat /opt/suoha/v2ray.txt
 elif [ \$menu == 0 ]
 then
-	echo 退出成功
-	exit
+    echo 退出成功
+    exit
 fi
 done
 EOF
@@ -772,7 +766,7 @@ echo " |  ___/ _\` / __\\   / | | | '_ \\ "
 echo " | |  | (_| \\__ \\| || |_| | | | |"
 echo " |_|   \\__,_|___/|_| \\__,_|_| |_|"
 echo "                                 "
-echo -e '\n'欢迎使用帕斯云（www.pasyun.com）一键梭哈脚本...'\n'
+echo -e "\n欢迎使用帕斯云（www.pasyun.com）一键梭哈脚本...\n"
 # 其他脚本内容
 echo 梭哈模式不需要自己提供域名,使用CF ARGO QUICK TUNNEL创建快速链接
 echo 梭哈模式在重启或者脚本再次运行后失效,如果需要使用需要再次运行创建
@@ -786,17 +780,17 @@ echo -e 帕斯云Nat：cloud.pasyun.com
 
 echo -e 注意：梭哈模式重启服务器后失效！！！
 
-echo -e '\n'梭哈是一种智慧!!!梭哈!梭哈!梭哈!梭哈!梭哈!梭哈!梭哈...'\n'
+echo -e "\n梭哈是一种智慧!!!梭哈!梭哈!梭哈!梭哈!梭哈!梭哈!梭哈...\n"
 echo 1.梭哈模式 无需cloudflare域名重启会失效！
 echo 2.安装服务 需要cloudflare域名重启不会失效！
 echo 3.卸载服务
 echo 4.清空缓存
 echo 5.管理服务
-echo -e 0.退出脚本'\n'
+echo -e 0.退出脚本\n
 read -p "请选择模式(默认1):" mode
 if [ -z "$mode" ]
 then
-	mode=1
+    mode=1
 fi
 # 在选择安装服务时再次检查
 if [ $mode == 2 ]; then
@@ -809,121 +803,119 @@ if [ $mode == 2 ]; then
 fi
 if [ $mode == 1 ]
 then
-	read -p "请选择xray协议(默认1.vmess,2.vless):" protocol
-	if [ -z "$protocol" ]
-	then
-		protocol=1
-	fi
-	if [ $protocol != 1 ] && [ $protocol != 2 ]
-	then
-		echo 请输入正确的xray协议
-		exit
-	fi
-	read -p "请选择argo连接模式IPV4或者IPV6(输入4或6,默认4):" ips
-	if [ -z "$ips" ]
-	then
-		ips=4
-	fi
-	if [ $ips != 4 ] && [ $ips != 6 ]
-	then
-		echo 请输入正确的argo连接模式
-		exit
-	fi
-	isp=$(curl -$ips -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18"-"$30}' | sed -e 's/ /_/g')
-	if [ $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') == "Alpine" ]
-	then
-		kill -9 $(ps -ef | grep xray | grep -v grep | awk '{print $1}') >/dev/null 2>&1
-		kill -9 $(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print $1}') >/dev/null 2>&1
-	else
-		kill -9 $(ps -ef | grep xray | grep -v grep | awk '{print $2}') >/dev/null 2>&1
-		kill -9 $(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print $2}') >/dev/null 2>&1
-	fi
-	rm -rf xray cloudflared-linux v2ray.txt
-	quicktunnel
+    read -p "请选择xray协议(默认1.vmess,2.vless):" protocol
+    if [ -z "$protocol" ]
+    then
+        protocol=1
+    fi
+    if [ $protocol != 1 ] && [ $protocol != 2 ]
+    then
+        echo 请输入正确的xray协议
+        exit
+    fi
+    read -p "请选择argo连接模式IPV4或者IPV6(输入4或6,默认4):" ips
+    if [ -z "$ips" ]
+    then
+        ips=4
+    fi
+    if [ $ips != 4 ] && [ $ips != 6 ]
+    then
+        echo 请输入正确的argo连接模式
+        exit
+    fi
+    isp=$(curl -$ips -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18"-"$30}' | sed -e 's/ /_/g')
+    if [ $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') == "Alpine" ]
+    then
+        kill -9 $(ps -ef | grep xray | grep -v grep | awk '{print $1}') >/dev/null 2>&1
+        kill -9 $(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print $1}') >/dev/null 2>&1
+    else
+        kill -9 $(ps -ef | grep xray | grep -v grep | awk '{print $2}') >/dev/null 2>&1
+        kill -9 $(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print $2}') >/dev/null 2>&1
+    fi
+    rm -rf xray cloudflared-linux v2ray.txt
+    quicktunnel
 elif [ $mode == 2 ]
 then
-	read -p "请选择xray协议(默认1.vmess,2.vless):" protocol
-	if [ -z "$protocol" ]
-	then
-		protocol=1
-	fi
-	if [ $protocol != 1 ] && [ $protocol != 2 ]
-	then
-		echo 请输入正确的xray协议
-		exit
-	fi
-	read -p "请选择argo连接模式IPV4或者IPV6(输入4或6,默认4):" ips
-	if [ -z "$ips" ]
-	then
-		ips=4
-	fi
-	if [ $ips != 4 ] && [ $ips != 6 ]
-	then
-		echo 请输入正确的argo连接模式
-		exit
-	fi
-	isp=$(curl -$ips -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18"-"$30}' | sed -e 's/ /_/g')
-	if [ $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') == "Alpine" ]
-	then
-		kill -9 $(ps -ef | grep xray | grep -v grep | awk '{print $1}') >/dev/null 2>&1
-		kill -9 $(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print $1}') >/dev/null 2>&1
-		rm -rf /opt/suoha /lib/systemd/system/cloudflared.service /lib/systemd/system/xray.service /usr/bin/suoha
-	else
-		systemctl stop cloudflared.service
-		systemctl stop xray.service
-		systemctl disable cloudflared.service
-		systemctl disable xray.service
-		kill -9 $(ps -ef | grep xray | grep -v grep | awk '{print $2}') >/dev/null 2>&1
-		kill -9 $(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print $2}') >/dev/null 2>&1
-		rm -rf /opt/suoha /lib/systemd/system/cloudflared.service /lib/systemd/system/xray.service /usr/bin/suoha
-		systemctl --system daemon-reload
-	fi
-	installtunnel
-	cat /opt/suoha/v2ray.txt
-	echo 服务安装完成,管理服务请运行命令 suoha
+    read -p "请选择xray协议(默认1.vmess,2.vless):" protocol
+    if [ -z "$protocol" ]
+    then
+        protocol=1
+    fi
+    if [ $protocol != 1 ] && [ $protocol != 2 ]
+    then
+        echo 请输入正确的xray协议
+        exit
+    fi
+    read -p "请选择argo连接模式IPV4或者IPV6(输入4或6,默认4):" ips
+    if [ -z "$ips" ]
+    then
+        ips=4
+    fi
+    if [ $ips != 4 ] && [ $ips != 6 ]
+    then
+        echo 请输入正确的argo连接模式
+        exit
+    fi
+    isp=$(curl -$ips -s https://speed.cloudflare.com/meta | awk -F\" '{print $26"-"$18"-"$30}' | sed -e 's/ /_/g')
+    if [ $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') == "Alpine" ]
+    then
+        kill -9 $(ps -ef | grep xray | grep -v grep | awk '{print $1}') >/dev/null 2>&1
+        kill -9 $(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print $1}') >/dev/null 2>&1
+        rm -rf /opt/suoha /lib/systemd/system/cloudflared.service /lib/systemd/system/xray.service /usr/bin/suoha
+    else
+        systemctl stop cloudflared.service
+        systemctl stop xray.service
+        systemctl disable cloudflared.service
+        systemctl disable xray.service
+        kill -9 $(ps -ef | grep xray | grep -v grep | awk '{print $2}') >/dev/null 2>&1
+        kill -9 $(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print $2}') >/dev/null 2>&1
+        rm -rf /opt/suoha /lib/systemd/system/cloudflared.service /lib/systemd/system/xray.service /usr/bin/suoha
+        systemctl --system daemon-reload
+    fi
+    installtunnel
+    cat /opt/suoha/v2ray.txt
+    echo 服务安装完成,管理服务请运行命令 suoha
 elif [ $mode == 3 ]
 then
-	if [ $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') == "Alpine" ]
-	then
-		kill -9 $(ps -ef | grep xray | grep -v grep | awk '{print $1}') >/dev/null 2>&1
-		kill -9 $(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print $1}') >/dev/null 2>&1
-		rm -rf /opt/suoha /lib/systemd/system/cloudflared.service /lib/systemd/system/xray.service /usr/bin/suoha
-	else
-		systemctl stop cloudflared.service
-		systemctl stop xray.service
-		systemctl disable cloudflared.service
-		systemctl disable xray.service
-		kill -9 $(ps -ef | grep xray | grep -v grep | awk '{print $2}') >/dev/null 2>&1
-		kill -9 $(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print $2}') >/dev/null 2>&1
-		rm -rf /opt/suoha /lib/systemd/system/cloudflared.service /lib/systemd/system/xray.service /usr/bin/suoha ~/.cloudflared
-		systemctl --system daemon-reload
-	fi
-	clear
-	echo 所有服务都卸载完成
-	echo 彻底删除授权记录
-	echo 请访问 https://dash.cloudflare.com/profile/api-tokens
-	echo 删除授权的 Argo Tunnel API Token 即可
+    if [ $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') == "Alpine" ]
+    then
+        kill -9 $(ps -ef | grep xray | grep -v grep | awk '{print $1}') >/dev/null 2>&1
+        kill -9 $(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print $1}') >/dev/null 2>&1
+        rm -rf /opt/suoha /lib/systemd/system/cloudflared.service /lib/systemd/system/xray.service /usr/bin/suoha
+    else
+        systemctl stop cloudflared.service
+        systemctl stop xray.service
+        systemctl disable cloudflared.service
+        systemctl disable xray.service
+        kill -9 $(ps -ef | grep xray | grep -v grep | awk '{print $2}') >/dev/null 2>&1
+        kill -9 $(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print $2}') >/dev/null 2>&1
+        rm -rf /opt/suoha /lib/systemd/system/cloudflared.service /lib/systemd/system/xray.service /usr/bin/suoha ~/.cloudflared
+        systemctl --system daemon-reload
+    fi
+    clear
+    echo 所有服务都卸载完成
+    echo 彻底删除授权记录
+    echo 请访问 https://dash.cloudflare.com/profile/api-tokens
+    echo 删除授权的 Argo Tunnel API Token 即可
 elif [ $mode == 5 ]
 then
     if [ -f "/usr/bin/suoha" ]; then
         suoha
     else
         echo "管理服务未安装，请先安装服务（选择模式2）"
-    
     fi
-
 elif [ $mode == 4 ]
 then
-	if [ $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') == "Alpine" ]
-	then
-		kill -9 $(ps -ef | grep xray | grep -v grep | awk '{print $1}') >/dev/null 2>&1
-		kill -9 $(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print $1}') >/dev/null 2>&1
-	else
-		kill -9 $(ps -ef | grep xray | grep -v grep | awk '{print $2}') >/dev/null 2>&1
-		kill -9 $(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print $2}') >/dev/null 2>&1
-	fi
-	rm -rf xray cloudflared-linux v2ray.txt
+    if [ $(grep -i PRETTY_NAME /etc/os-release | cut -d \" -f2 | awk '{print $1}') == "Alpine" ]
+    then
+        kill -9 $(ps -ef | grep xray | grep -v grep | awk '{print $1}') >/dev/null 2>&1
+        kill -9 $(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print $1}') >/dev/null 2>&1
+    else
+        kill -9 $(ps -ef | grep xray | grep -v grep | awk '{print $2}') >/dev/null 2>&1
+        kill -9 $(ps -ef | grep cloudflared-linux | grep -v grep | awk '{print $2}') >/dev/null 2>&1
+    fi
+    rm -rf xray cloudflared-linux v2ray.txt
 else
-	echo 退出成功
-	exit
+    echo 退出成功
+    exit
 fi
